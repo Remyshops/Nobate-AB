@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>برنامه آب چاه حسن آباد ارنان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sand:#F4F8FC;
+    --sand-deep:#E3EDF7;
+    --ink:#132133;
+    --ink-soft:#5C7085;
+    --water-deep:#0B4A85;
+    --water:#1668B0;
+    --water-bright:#3B9CF2;
+    --clay:#0E3A66;
+    --clay-soft:#3B6E9E;
+    --gold:#1668B0;
+    --alert:#B23B3B;
+    --alert-bg:#FBE6E6;
+    --card:#FFFFFF;
+    --line: rgba(11,74,133,0.12);
+    --shadow: 0 14px 40px rgba(11,74,133,0.10);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(59,156,242,0.12), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(11,74,133,0.08), transparent 55%),
+      var(--sand);
+    color:var(--ink);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+
+  .wrap{ max-width: 960px; margin: 0 auto; }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 22px;
+  }
+  header h1{
+    font-family:'Lalezar', sans-serif;
+    font-weight:400;
+    font-size: clamp(28px, 5vw, 44px);
+    background: linear-gradient(90deg, var(--water-deep), var(--water-bright));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin:0;
+    letter-spacing: 0.5px;
+  }
+  header .sub{
+    font-size:13px;
+    color: var(--ink-soft);
+    margin-top:6px;
+  }
+  .today-badge{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 999px;
+    padding: 9px 20px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    box-shadow: var(--shadow);
+    white-space:nowrap;
+  }
+  .today-badge b{ color: var(--water-deep); font-weight:700; }
+
+  /* ---- update / accuracy note ---- */
+  .update-note{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    background: var(--sand-deep);
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+  }
+  .update-note .un-icon{
+    font-size: 18px;
+    line-height:1.6;
+  }
+  .update-note .un-text{ flex:1; }
+  .update-note .un-line1{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .update-note .un-line1 b{ color: var(--water-deep); font-weight:700; }
+  .update-note .un-line2{
+    font-size: 12.5px;
+    color: var(--water-deep);
+    line-height: 1.9;
+    font-weight:600;
+  }
+
+  /* ---- tabs ---- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 16px;
+    padding: 6px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .tab-btn{
+    flex:1;
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size: 14.5px;
+    padding: 12px 10px;
+    border-radius: 12px;
+    border:none;
+    background:transparent;
+    color: var(--ink-soft);
+    cursor:pointer;
+    transition: all 0.2s ease;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .tab-btn:hover{ color: var(--water-deep); }
+  .tab-btn.is-active{
+    background: linear-gradient(135deg, var(--water-deep), var(--water));
+    color:#fff;
+    box-shadow: 0 8px 20px rgba(11,74,133,0.28);
+  }
+  .tab-panel{ display:none; }
+  .tab-panel.is-active{ display:block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- outage banner / control ---- */
+  .power-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom: 16px;
+  }
+  .power-btn{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:600;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border:1px solid var(--line);
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition: all 0.15s ease;
+  }
+  .power-btn:hover{ border-color: var(--alert); color: var(--alert); }
+
+  .outage-banner{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    background: var(--alert-bg);
+    border: 1px solid rgba(178,59,59,0.30);
+    color: var(--alert);
+    border-radius: 18px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .outage-banner.show{ display:flex; }
+  .outage-banner .msg{ font-size:14px; font-weight:600; line-height:1.8; }
+  .outage-banner .msg b{ font-weight:800; }
+  .resume-btn{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size: 14px;
+    padding: 11px 20px;
+    border-radius: 12px;
+    border:none;
+    background: linear-gradient(135deg, var(--water-deep), var(--water));
+    color:#fff;
+    cursor:pointer;
+    white-space:nowrap;
+    box-shadow: 0 8px 18px rgba(11,74,133,0.22);
+  }
+  .resume-btn:hover{ filter: brightness(1.06); }
+
+  /* ---- hero / dial ---- */
+  .hero{
+    background: linear-gradient(180deg, #FFFFFF, #FAFCFF);
+    border:1px solid var(--line);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    padding: 34px 20px 28px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background: radial-gradient(560px 320px at 50% 0%, rgba(59,156,242,0.10), transparent 70%);
+    pointer-events:none;
+  }
+  .hero.is-off::before{
+    background: radial-gradient(560px 320px at 50% 0%, rgba(178,59,59,0.10), transparent 70%);
+  }
+
+  #dial{ width:min(340px, 78vw); height:auto; display:block; }
+
+  .seg{
+    fill: var(--sand-deep);
+    stroke: var(--card);
+    stroke-width: 3;
+    cursor:pointer;
+    transition: fill 0.25s ease, transform 0.25s ease;
+    transform-origin: 200px 200px;
+  }
+  .seg:hover{ fill: var(--water-bright); opacity:0.85; }
+  .seg.active-today{ fill: var(--clay-soft); }
+  .seg.selected{ fill: var(--water); }
+  .seg.selected.active-today{ fill: var(--water-deep); }
+  .seg.off.active-today{ fill: var(--alert); }
+  .seg.off.selected.active-today{ fill: var(--alert); }
+
+  .seg-num{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size: 15px;
+    fill: var(--ink);
+    pointer-events:none;
+  }
+  .seg-num.on-selected{ fill:#fff; }
+  .seg-num.on-today{ fill:#fff; }
+
+  .ripple{
+    fill:none;
+    stroke: var(--water-bright);
+    stroke-width: 3;
+    opacity:0;
+    transform-origin: 200px 200px;
+  }
+  .ripple.pulse{
+    animation: ripple 2.4s ease-out infinite;
+  }
+  .ripple.off{ stroke: var(--alert); }
+  @keyframes ripple{
+    0%{ opacity:0.9; stroke-width:3; }
+    70%{ opacity:0; stroke-width:14; }
+    100%{ opacity:0; }
+  }
+
+  .center-label{
+    text-anchor:middle;
+    font-family:'Vazirmatn', sans-serif;
+    fill: var(--ink);
+  }
+  .center-label .k1{ font-size:13px; fill: var(--ink-soft); font-weight:500; }
+  .center-label .k2{ font-family:'Lalezar', sans-serif; font-size:34px; fill: var(--water-deep); }
+  .center-label .k2.off{ fill: var(--alert); }
+
+  .hero-note{
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-align:center;
+  }
+
+  .countdown{
+    margin-top: 14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background: rgba(22,104,176,0.07);
+    border:1px solid rgba(22,104,176,0.16);
+    border-radius: 999px;
+    padding: 8px 20px;
+  }
+  .countdown .cd-label{
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight:600;
+  }
+  .countdown .cd-time{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:800;
+    font-size: 17px;
+    color: var(--water-deep);
+    letter-spacing: 0.5px;
+    direction: ltr;
+  }
+  .countdown.off{
+    background: var(--alert-bg);
+    border-color: rgba(178,59,59,0.3);
+  }
+  .countdown.off .cd-label,
+  .countdown.off .cd-time{ color: var(--alert); }
+
+  /* ---- band selector buttons ---- */
+  .selector{ margin-top: 26px; }
+  .selector h2{
+    font-size:15px;
+    color: var(--ink-soft);
+    font-weight:600;
+    margin: 0 0 12px 0;
+  }
+  .band-grid{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:10px;
+  }
+  @media (max-width:520px){
+    .band-grid{ grid-template-columns: repeat(5, 1fr); gap:8px; }
+  }
+  .band-btn{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size: 15px;
+    padding: 14px 6px;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 14px;
+    color: var(--water-deep);
+    cursor:pointer;
+    transition: all 0.18s ease;
+  }
+  .band-btn:hover{ border-color: var(--water); transform: translateY(-2px); box-shadow: 0 8px 18px rgba(11,74,133,0.12); }
+  .band-btn.is-today{ box-shadow: inset 0 0 0 2px var(--clay-soft); }
+  .band-btn.is-selected{ background: linear-gradient(135deg, var(--water-deep), var(--water)); color:#fff; border-color:var(--water-deep); box-shadow: 0 8px 18px rgba(11,74,133,0.25); }
+
+  /* ---- detail card ---- */
+  .detail{
+    margin-top: 22px;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px 22px;
+    box-shadow: var(--shadow);
+  }
+  .detail .row1{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .band-pill{
+    font-family:'Lalezar', sans-serif;
+    font-size: 20px;
+    background: var(--water-deep);
+    color:#fff;
+    padding: 6px 18px;
+    border-radius: 999px;
+  }
+  .band-pill.today{ background: var(--clay); }
+  .detail .flag{
+    font-size:12px;
+    color: var(--water-deep);
+    background: rgba(22,104,176,0.14);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight:600;
+  }
+  .names{
+    font-size: 17px;
+    line-height: 2;
+    color: var(--ink);
+  }
+  .next-date{
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+  }
+
+  /* ---- date lookup ---- */
+  .lookup{
+    margin-top: 22px;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .lookup label{ font-size:14px; color:var(--ink-soft); white-space:nowrap; }
+  .lookup input[type=date]{
+    font-family:'Vazirmatn', sans-serif;
+    font-size:14px;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+  }
+  .lookup .result{
+    font-size:14px;
+    color:var(--water-deep);
+    font-weight:700;
+  }
+
+  footer{
+    margin-top: 30px;
+    text-align:center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height:1.9;
+  }
+
+  /* ---- confirm modal ---- */
+  .modal-bg{
+    display:none;
+    position:fixed; inset:0;
+    background: rgba(42,35,24,0.45);
+    align-items:center; justify-content:center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-bg.show{ display:flex; }
+  .modal{
+    background:#fff;
+    border-radius: 18px;
+    padding: 24px;
+    max-width: 380px;
+    width:100%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    text-align:center;
+  }
+  .modal p{ font-size:15px; line-height:1.9; color:var(--ink); margin: 0 0 18px; }
+  .modal .actions{ display:flex; gap:10px; justify-content:center; }
+  .modal button{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border:none;
+    cursor:pointer;
+  }
+  .modal .confirm{ background: var(--alert); color:#fff; }
+  .modal .cancel{ background: var(--sand-deep); color: var(--ink); }
+
+  /* ---- resume modal extras ---- */
+  .modal.resume-modal .confirm{ background: var(--water-deep); }
+  .modal .time-presets{
+    display:flex; gap:10px; justify-content:center; margin-bottom:16px;
+  }
+  .preset-btn{
+    font-family:'Vazirmatn', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:9px 20px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background: var(--sand);
+    color: var(--water-deep);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .preset-btn:hover{ border-color: var(--water); }
+  .preset-btn.is-active{ background: var(--water-deep); color:#fff; border-color:var(--water-deep); }
+  .modal .field-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+    text-align:right;
+  }
+  .modal .field-row label{
+    font-size:13px; color:var(--ink-soft); font-weight:600; white-space:nowrap;
+  }
+  .modal input[type=time], .modal select{
+    font-family:'Vazirmatn', sans-serif;
+    font-size:14px;
+    padding:8px 10px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    flex:1;
+  }
+  .time-picker{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex:1;
+    justify-content:flex-end;
+  }
+  .time-picker select{
+    flex: none;
+    width: 62px;
+    text-align:center;
+  }
+  .time-picker .tp-colon{
+    font-weight:800;
+    color: var(--ink-soft);
+  }
+
+  /* ---- password modal ---- */
+  .password-input{
+    width:100%;
+    font-family:'Vazirmatn', sans-serif;
+    font-size:20px;
+    letter-spacing: 4px;
+    text-align:center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+    margin-bottom: 10px;
+    direction: ltr;
+  }
+  .password-input:focus{
+    outline:none;
+    border-color: var(--water);
+    box-shadow: 0 0 0 3px rgba(22,104,176,0.14);
+  }
+  .password-error{
+    display:none;
+    font-size:13px !important;
+    color: var(--alert) !important;
+    margin: 0 0 14px !important;
+  }
+  .password-error.show{ display:block; }
+  .modal.password-modal .confirm{ background: var(--water-deep); }
+
+  .last-on-note{
+    font-size:12px;
+    color: var(--ink-soft);
+    margin: -10px 0 16px;
+    text-align:center;
+    display:none;
+  }
+
+  .band-times{
+    margin-top: 22px;
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 20px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .band-times .bt-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .band-times .bt-row + .bt-row{
+    padding-top:10px;
+    border-top: 1px dashed var(--line);
+  }
+  .band-times .bt-label{
+    font-size:13px;
+    color: var(--ink-soft);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .band-times .bt-value{
+    font-size:14px;
+    color: var(--water-deep);
+    font-weight:700;
+  }
+  .band-times.off .bt-value{ color: var(--alert); }
+
+  /* ---- partners tab ---- */
+  .partners-intro{
+    text-align:center;
+    margin-bottom: 22px;
+  }
+  .partners-intro h2{
+    font-family:'Lalezar', sans-serif;
+    font-weight:400;
+    font-size: 24px;
+    color: var(--water-deep);
+    margin: 0 0 6px;
+  }
+  .partners-intro p{
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin:0;
+  }
+  .partners-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width:640px){
+    .partners-grid{ grid-template-columns: 1fr; }
+  }
+  .partner-card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .partner-card::before{
+    content:"";
+    position:absolute; inset:0 0 auto 0;
+    height:4px;
+    background: linear-gradient(90deg, var(--water-deep), var(--water-bright));
+  }
+  .partner-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 34px rgba(11,74,133,0.16); }
+  .partner-card.is-today{ box-shadow: 0 0 0 2px var(--water-bright), var(--shadow); }
+  .partner-card .pc-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 12px;
+  }
+  .partner-card .pc-badge{
+    font-family:'Lalezar', sans-serif;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--water-deep), var(--water));
+    color:#fff;
+    padding: 5px 16px;
+    border-radius: 999px;
+    white-space:nowrap;
+  }
+  .partner-card .pc-today-flag{
+    font-size:11px;
+    color: var(--water-deep);
+    background: rgba(22,104,176,0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight:600;
+  }
+  .partner-card .pc-names{
+    font-size: 15px;
+    line-height: 2;
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>برنامه آب چاه حسن آباد ارنان</h1>
+      <div class="sub">چرخهٔ ده‌روزهٔ شبانه‌روزها بر اساس شماره‌گذاری بندها</div>
+    </div>
+    <div class="today-badge" id="todayBadge">در حال بارگذاری تاریخ...</div>
+  </header>
+
+  <div class="update-note">
+    <span class="un-icon">ℹ️</span>
+    <div class="un-text">
+      <div class="un-line1">آخرین به‌روزرسانی سایت: <b id="updateDate">—</b></div>
+      <div class="un-line2">⚠️ ممکن است ساعت دقیق نباشد؛ برای اطمینان از ساعت دقیق آب‌بندون حتماً در گروه چاه حسن آباد سؤال کنید یا از موتورچی چاه بپرسید.</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn is-active" id="tabBtnSchedule" type="button">💧 نوبت‌بندی آب</button>
+    <button class="tab-btn" id="tabBtnPartners" type="button">👥 اسامی شرکای چاه</button>
+  </div>
+
+  <div class="tab-panel is-active" id="tabSchedule">
+
+    <div class="power-row">
+      <button class="power-btn" id="offBtn">⚡ ثبت خاموشی چاه / قطع برق</button>
+    </div>
+
+    <div class="last-on-note" id="lastOnNote"></div>
+
+    <div class="outage-banner" id="outageBanner">
+      <div class="msg" id="outageMsg"></div>
+      <button class="resume-btn" id="resumeBtn">چاه روشن شد، ادامهٔ نوبت</button>
+    </div>
+
+    <div class="hero" id="hero">
+      <svg id="dial" viewBox="0 0 400 400"></svg>
+      <div class="hero-note">روی هر قطاع یا شماره کلیک کنید تا اسامی همان بند نمایش داده شود</div>
+      <div class="countdown" id="countdown">
+        <span class="cd-label" id="countdownLabel">تا شروع بند بعدی</span>
+        <span class="cd-time" id="countdownTime">--:--:--</span>
+      </div>
+    </div>
+
+    <div class="band-times" id="bandTimes">
+      <div class="bt-row">
+        <span class="bt-label">شروع این بند</span>
+        <span class="bt-value" id="btCurrent">—</span>
+      </div>
+      <div class="bt-row">
+        <span class="bt-label">شروع بند بعدی</span>
+        <span class="bt-value" id="btNext">—</span>
+      </div>
+    </div>
+
+    <div class="selector">
+      <h2>انتخاب بند</h2>
+      <div class="band-grid" id="bandGrid"></div>
+    </div>
+
+    <div class="detail" id="detailCard"></div>
+
+    <div class="lookup">
+      <label for="dateInput">بررسی نوبت در تاریخ دیگر:</label>
+      <input type="date" id="dateInput">
+      <span class="result" id="lookupResult"></span>
+    </div>
+
+  </div>
+
+  <div class="tab-panel" id="tabPartners">
+    <div class="partners-intro">
+      <h2>اسامی شرکای چاه به تفکیک بند</h2>
+      <p>فهرست شرکا در هر یک از ده بند نوبت‌بندی چاه</p>
+    </div>
+    <div class="partners-grid" id="partnersGrid"></div>
+  </div>
+
+  <footer>
+    این چرخش بر اساس شماره‌گذاری قدیمی شبانه‌روزهاست و به پیشنهاد شرکا جایگزین بردن نام افراد شده است.<br>
+    به علت طولانی نشدن فهرست، از تمامی شرکا در هر بند اسم برده نشده است.
+  </footer>
+
+</div>
+
+<div class="modal-bg" id="passwordModalBg">
+  <div class="modal password-modal">
+    <p>برای ثبت خاموشی چاه، رمز عبور را وارد کنید.</p>
+    <input type="password" id="passwordInput" class="password-input" placeholder="رمز عبور" inputmode="numeric" autocomplete="off">
+    <p class="password-error" id="passwordError">رمز عبور اشتباه است.</p>
+    <div class="actions">
+      <button class="confirm" id="passwordConfirm">تأیید</button>
+      <button class="cancel" id="passwordCancel">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <p id="modalText"></p>
+    <div class="actions">
+      <button class="confirm" id="modalConfirm">تأیید</button>
+      <button class="cancel" id="modalCancel">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="resumeModalBg">
+  <div class="modal resume-modal">
+    <p>چاه دوباره روشن شده؟ ساعت روشن‌شدن و بند شروع را مشخص کنید.</p>
+    <div class="time-presets">
+      <button type="button" class="preset-btn" id="presetNoon">☀️ ظهر</button>
+      <button type="button" class="preset-btn" id="presetNight">🌙 شب</button>
+    </div>
+    <div class="field-row">
+      <label for="resumeHour">ساعت روشن‌شدن</label>
+      <div class="time-picker">
+        <select id="resumeHour"></select>
+        <span class="tp-colon">:</span>
+        <select id="resumeMinute"></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <label for="resumeBandSelect">بند شروع</label>
+      <select id="resumeBandSelect"></select>
+    </div>
+    <div class="actions">
+      <button class="confirm" id="resumeModalConfirm">تأیید و ادامه</button>
+      <button class="cancel" id="resumeModalCancel">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- Data ---------------- */
+const BANDS = [
+  "مرحوم حاجی علی مصطفی، اصغر آزاد",
+  "کاظمی‌نسب، فلاحتی، گردکوهی، حسین کمالی",
+  "حاجی رمضان حسنعلی، مرحوم ابراهیم و...، حراتی‌ها",
+  "حاجی حسین امیر و...، بچه‌های حسین امیر، اسماعیلی، مدرسی",
+  "حاجی حسین ماشاءالله و...، رضا عباس، خبری، مجید کمالی، حاجی گل، ایوب",
+  "حاجی رضا مصطفی، فلاحی‌پناه و...، مشهدی",
+  "قاسم حاج محمد، ابوالقاسم عزیز و...، بچه‌های حیدر",
+  "حسن مهدی، اسماعیلی و...، حسن مدیر",
+  "رمضان حاجی محمد، حاج رضا حاج اسدالله و...، طاهر",
+  "حاجی علی نوقی، بچه‌های مرحوم حسن امیر و منوچهر حاج محمد غلامرضا، سیدمحمد میردهقان، عسکری"
+];
+const ORDINAL = ["اول","دوم","سوم","چهارم","پنجم","ششم","هفتم","هشتم","نهم","دهم"];
+
+// Reference point: on 2026-08-04 (Gregorian, UTC midnight) it is band #10 (index 9)
+const REF_DATE = Date.UTC(2026, 7, 4);
+const REF_BAND_INDEX = 9;
+const MS_DAY = 86400000;
+
+function utcMidnight(y,m,d){ return Date.UTC(y,m,d); }
+function bandIndexForMs(ms){
+  const diff = Math.round((ms - REF_DATE) / MS_DAY);
+  return (((REF_BAND_INDEX + diff) % 10) + 10) % 10;
+}
+
+/* ---------------- Jalali conversion ---------------- */
+function divi(a,b){ return Math.floor(a/b); }
+function gregorianToJalali(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy = (gy <= 1600) ? 0 : 979;
+  gy -= (gy <= 1600) ? 621 : 1600;
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = (365*gy) + divi((gy2+3),4) - divi((gy2+99),100) + divi((gy2+399),400) - 80 + gd + g_d_m[gm-1];
+  jy += 33 * divi(days,12053);
+  days %= 12053;
+  jy += 4 * divi(days,1461);
+  days %= 1461;
+  if (days > 365){ jy += divi(days-1,365); days = (days-1) % 365; }
+  let jm, jd;
+  if (days < 186){ jm = 1 + divi(days,31); jd = 1 + (days % 31); }
+  else { jm = 7 + divi(days-186,30); jd = 1 + ((days-186) % 30); }
+  return [jy, jm, jd];
+}
+const JMONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const WEEKDAYS = ["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"];
+function formatJalali(ms){
+  const d = new Date(ms);
+  const [jy,jm,jd] = gregorianToJalali(d.getUTCFullYear(), d.getUTCMonth()+1, d.getUTCDate());
+  return `${WEEKDAYS[d.getUTCDay()]} ${jd} ${JMONTHS[jm-1]} ${jy}`;
+}
+
+/* ---------------- Persistent shared status (well on/off) ---------------- */
+// status = { state: 'on'|'off', offsetDays: number, offSinceMs: number|null, dayStart: {hour,minute} }
+const STORAGE_KEY = 'nobat-ab-status';
+let status = { state:'on', offsetDays:0, offSinceMs:null, dayStart:{hour:0, minute:0} };
+let storageMode = 'memory';
+
+async function loadStatus(){
+  try{
+    if (window.storage){
+      const r = await window.storage.get(STORAGE_KEY, true);
+      if (r && r.value){ status = JSON.parse(r.value); }
+      storageMode = 'shared';
+      if (!status.dayStart) status.dayStart = {hour:0, minute:0};
+      return;
+    }
+  }catch(e){ /* key not found or storage unavailable */ }
+  try{
+    const local = localStorage.getItem(STORAGE_KEY);
+    if (local){ status = JSON.parse(local); }
+    storageMode = 'local';
+  }catch(e){ storageMode = 'memory'; }
+  if (!status.dayStart) status.dayStart = {hour:0, minute:0};
+}
+async function saveStatus(){
+  try{
+    if (window.storage){
+      await window.storage.set(STORAGE_KEY, JSON.stringify(status), true);
+      return;
+    }
+  }catch(e){}
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(status)); }catch(e){}
+}
+
+/* ---------------- Band-start boundary (real clock time, not just midnight) ---------------- */
+// The well's band switches once every 24h, but at a configurable clock time
+// (status.dayStart), set whenever the well is marked back on. This finds the
+// real Date of the most recent boundary at-or-before `now`.
+function activeBandDate(now){
+  const y = now.getFullYear(), mo = now.getMonth(), d = now.getDate();
+  let boundary = new Date(y, mo, d, status.dayStart.hour, status.dayStart.minute, 0, 0);
+  if (now.getTime() < boundary.getTime()){
+    boundary = new Date(y, mo, d - 1, status.dayStart.hour, status.dayStart.minute, 0, 0);
+  }
+  return boundary;
+}
+function activeBandUtcMidnightFor(now){
+  const b = activeBandDate(now);
+  return utcMidnight(b.getFullYear(), b.getMonth(), b.getDate());
+}
+
+/* effective "today" used for band calculation, honoring pause offset */
+function effectiveTodayMs(){
+  const now = new Date();
+  const realToday = activeBandUtcMidnightFor(now);
+  const ref = (status.state === 'off' && status.offSinceMs !== null) ? status.offSinceMs : realToday;
+  return ref - status.offsetDays * MS_DAY;
+}
+function effectiveMsFor(targetRealMs){
+  return targetRealMs - status.offsetDays * MS_DAY;
+}
+
+/* Jalali date + real clock time, for a genuine local Date object (not a date-only ms marker) */
+function formatJalaliDateTime(dateObj){
+  const y = dateObj.getFullYear(), mo = dateObj.getMonth()+1, d = dateObj.getDate();
+  const [jy,jm,jd] = gregorianToJalali(y, mo, d);
+  const wd = new Date(Date.UTC(y, mo-1, d)).getUTCDay();
+  return `${WEEKDAYS[wd]} ${jd} ${JMONTHS[jm-1]} ${jy} — ساعت ${pad2(dateObj.getHours())}:${pad2(dateObj.getMinutes())}`;
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+
+/* ---------------- Build dial (SVG) ---------------- */
+const svgNS = "http://www.w3.org/2000/svg";
+const dial = document.getElementById('dial');
+const CX=200, CY=200, R_OUT=170, R_IN=104, GAP_DEG=2.2;
+function polar(cx,cy,r,angleDeg){
+  const a = (angleDeg-90) * Math.PI/180;
+  return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+}
+function segPath(startDeg, endDeg){
+  const [x1,y1] = polar(CX,CY,R_OUT,startDeg);
+  const [x2,y2] = polar(CX,CY,R_OUT,endDeg);
+  const [x3,y3] = polar(CX,CY,R_IN,endDeg);
+  const [x4,y4] = polar(CX,CY,R_IN,startDeg);
+  const largeArc = (endDeg-startDeg) > 180 ? 1 : 0;
+  return `M ${x1} ${y1} A ${R_OUT} ${R_OUT} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${R_IN} ${R_IN} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+}
+const segEls=[], numEls=[], rippleEls=[];
+for(let i=0;i<10;i++){
+  const start = i*36 + GAP_DEG/2;
+  const end = (i+1)*36 - GAP_DEG/2;
+  const mid = (start+end)/2;
+
+  const path = document.createElementNS(svgNS,'path');
+  path.setAttribute('d', segPath(start,end));
+  path.setAttribute('class','seg');
+  path.addEventListener('click', ()=> selectBand(i));
+  dial.appendChild(path);
+  segEls.push(path);
+
+  const [nx,ny] = polar(CX,CY,(R_OUT+R_IN)/2, mid);
+  const num = document.createElementNS(svgNS,'text');
+  num.setAttribute('x', nx); num.setAttribute('y', ny+5);
+  num.setAttribute('class','seg-num'); num.setAttribute('text-anchor','middle');
+  num.textContent = i+1; num.style.pointerEvents='none';
+  dial.appendChild(num);
+  numEls.push(num);
+
+  const ripple = document.createElementNS(svgNS,'path');
+  ripple.setAttribute('d', segPath(start,end));
+  ripple.setAttribute('class','ripple');
+  dial.appendChild(ripple);
+  rippleEls.push(ripple);
+}
+const centerText1 = document.createElementNS(svgNS,'text');
+centerText1.setAttribute('x',CX); centerText1.setAttribute('y',CY-10);
+centerText1.setAttribute('class','center-label k1'); centerText1.setAttribute('text-anchor','middle');
+dial.appendChild(centerText1);
+const centerText2 = document.createElementNS(svgNS,'text');
+centerText2.setAttribute('x',CX); centerText2.setAttribute('y',CY+26);
+centerText2.setAttribute('class','center-label k2'); centerText2.setAttribute('text-anchor','middle');
+dial.appendChild(centerText2);
+
+/* ---------------- Band selector buttons ---------------- */
+const bandGrid = document.getElementById('bandGrid');
+const btns = [];
+for(let i=0;i<10;i++){
+  const b = document.createElement('button');
+  b.className='band-btn';
+  b.textContent = 'بند ' + (i+1);
+  b.addEventListener('click', ()=> selectBand(i));
+  bandGrid.appendChild(b);
+  btns.push(b);
+}
+
+let selectedIndex = null;
+function selectBand(i){ selectedIndex = i; render(); }
+
+/* ---------------- Resume band select options ---------------- */
+const resumeBandSelect = document.getElementById('resumeBandSelect');
+for(let i=0;i<10;i++){
+  const opt = document.createElement('option');
+  opt.value = String(i);
+  opt.textContent = 'بند ' + ORDINAL[i];
+  resumeBandSelect.appendChild(opt);
+}
+
+/* ---------------- Render ---------------- */
+function render(){
+  const todayEffMs = effectiveTodayMs();
+  const todayBandIndex = bandIndexForMs(todayEffMs);
+  if (selectedIndex === null) selectedIndex = todayBandIndex;
+  const isOff = status.state === 'off';
+
+  document.getElementById('hero').classList.toggle('is-off', isOff);
+
+  segEls.forEach((el,i)=>{
+    el.classList.toggle('active-today', i===todayBandIndex);
+    el.classList.toggle('selected', i===selectedIndex);
+    el.classList.toggle('off', isOff);
+  });
+  numEls.forEach((el,i)=>{
+    el.classList.toggle('on-today', i===todayBandIndex && i!==selectedIndex);
+    el.classList.toggle('on-selected', i===selectedIndex);
+  });
+  rippleEls.forEach((el,i)=>{
+    el.classList.toggle('pulse', i===todayBandIndex);
+    el.classList.toggle('off', isOff);
+  });
+
+  btns.forEach((b,i)=>{
+    b.classList.toggle('is-today', i===todayBandIndex);
+    b.classList.toggle('is-selected', i===selectedIndex);
+  });
+
+  centerText1.textContent = isOff ? 'چاه خاموش است' : 'امروز نوبت';
+  centerText2.textContent = 'بند ' + ORDINAL[todayBandIndex];
+  centerText2.classList.toggle('off', isOff);
+
+  const now = new Date();
+  const realTodayMs = utcMidnight(now.getFullYear(), now.getMonth(), now.getDate());
+  document.getElementById('todayBadge').innerHTML = `امروز <b>${formatJalali(realTodayMs)}</b>`;
+
+  const lastOnNote = document.getElementById('lastOnNote');
+  if (!isOff && status.lastOn){
+    const hh = String(status.lastOn.hour).padStart(2,'0');
+    const mm = String(status.lastOn.minute).padStart(2,'0');
+    lastOnNote.textContent = `آخرین روشن‌شدن: ${formatJalali(status.lastOn.ms)} ساعت ${hh}:${mm} — شروع از بند ${ORDINAL[status.lastOn.band]}`;
+    lastOnNote.style.display = 'block';
+  } else {
+    lastOnNote.style.display = 'none';
+  }
+
+  const bandTimes = document.getElementById('bandTimes');
+  const btCurrent = document.getElementById('btCurrent');
+  const btNext = document.getElementById('btNext');
+  if (isOff){
+    bandTimes.classList.add('off');
+    btCurrent.textContent = 'نوبت‌بندی متوقف شده';
+    btNext.textContent = 'پس از روشن شدن دوباره مشخص می‌شود';
+  } else {
+    bandTimes.classList.remove('off');
+    const curBoundary = activeBandDate(now);
+    const nextBoundary = new Date(curBoundary.getTime() + MS_DAY);
+    btCurrent.textContent = formatJalaliDateTime(curBoundary);
+    btNext.textContent = formatJalaliDateTime(nextBoundary);
+  }
+
+  const banner = document.getElementById('outageBanner');
+  const offBtn = document.getElementById('offBtn');
+  if (isOff){
+    banner.classList.add('show');
+    offBtn.style.display = 'none';
+    document.getElementById('outageMsg').innerHTML =
+      `⚠️ چاه از تاریخ <b>${formatJalali(status.offSinceMs)}</b> خاموش است — نوبت‌بندی متوقف شده و همان بند باقی می‌ماند.`;
+  } else {
+    banner.classList.remove('show');
+    offBtn.style.display = 'flex';
+  }
+
+  const isTodaySel = selectedIndex===todayBandIndex;
+  const diffToNext = (((selectedIndex - todayBandIndex) % 10) + 10) % 10;
+  const nextDateMs = todayEffMs + diffToNext*MS_DAY;
+
+  document.getElementById('detailCard').innerHTML = `
+    <div class="row1">
+      <span class="band-pill ${isTodaySel?'today':''}">بند ${ORDINAL[selectedIndex]}</span>
+      ${isTodaySel ? `<span class="flag">${isOff?'نوبت متوقف‌شده':'نوبت امروز'}</span>` : ''}
+    </div>
+    <div class="names">${BANDS[selectedIndex]}</div>
+    <div class="next-date">
+      ${isTodaySel
+        ? (isOff ? `این بند از لحظهٔ خاموشی چاه ثابت مانده و پس از روشن شدن دوباره ادامه می‌یابد.`
+                 : `نوبت این بند از امروز آغاز شده است.`)
+        : `نوبت بعدی این بند: ${formatJalali(nextDateMs)}`}
+    </div>
+  `;
+
+  if (typeof updateCountdown === 'function') updateCountdown();
+  if (typeof buildPartnersGrid === 'function') buildPartnersGrid();
+}
+
+/* ---------------- Date lookup ---------------- */
+const dateInput = document.getElementById('dateInput');
+const lookupResult = document.getElementById('lookupResult');
+function initLookup(){
+  const now = new Date();
+  dateInput.value = new Date(utcMidnight(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().slice(0,10);
+  dateInput.dispatchEvent(new Event('change'));
+}
+dateInput.addEventListener('change', ()=>{
+  if(!dateInput.value) return;
+  const [y,m,d] = dateInput.value.split('-').map(Number);
+  const realMs = utcMidnight(y, m-1, d);
+  const effMs = effectiveMsFor(realMs);
+  const idx = bandIndexForMs(effMs);
+  lookupResult.textContent = `${formatJalali(realMs)} ← نوبت بند ${ORDINAL[idx]}`;
+});
+
+/* ---------------- Outage controls + modal ---------------- */
+const modalBg = document.getElementById('modalBg');
+const modalText = document.getElementById('modalText');
+const modalConfirm = document.getElementById('modalConfirm');
+const modalCancel = document.getElementById('modalCancel');
+let pendingAction = null;
+
+function openModal(text, action){
+  modalText.textContent = text;
+  pendingAction = action;
+  modalBg.classList.add('show');
+}
+function closeModal(){ modalBg.classList.remove('show'); pendingAction=null; }
+modalCancel.addEventListener('click', closeModal);
+modalBg.addEventListener('click', (e)=>{ if(e.target===modalBg) closeModal(); });
+modalConfirm.addEventListener('click', async ()=>{
+  if (pendingAction) await pendingAction();
+  closeModal();
+});
+
+/* ---------------- Password gate for outage reporting ---------------- */
+const OFF_PASSWORD = '5566';
+const passwordModalBg = document.getElementById('passwordModalBg');
+const passwordInput = document.getElementById('passwordInput');
+const passwordError = document.getElementById('passwordError');
+const passwordConfirm = document.getElementById('passwordConfirm');
+const passwordCancel = document.getElementById('passwordCancel');
+
+function openPasswordModal(){
+  passwordInput.value = '';
+  passwordError.classList.remove('show');
+  passwordModalBg.classList.add('show');
+  setTimeout(()=> passwordInput.focus(), 50);
+}
+function closePasswordModal(){
+  passwordModalBg.classList.remove('show');
+  passwordInput.value = '';
+  passwordError.classList.remove('show');
+}
+function checkPassword(){
+  if (passwordInput.value === OFF_PASSWORD){
+    closePasswordModal();
+    openModal('برق قطع شده یا موتور چاه خاموش شده؟ با تأیید، نوبت‌بندی از همین لحظه متوقف می‌شود.', async ()=>{
+      const now = new Date();
+      status.state = 'off';
+      status.offSinceMs = activeBandUtcMidnightFor(now);
+      await saveStatus();
+      selectedIndex = null;
+      render();
+    });
+  } else {
+    passwordError.classList.add('show');
+    passwordInput.value = '';
+    passwordInput.focus();
+  }
+}
+passwordConfirm.addEventListener('click', checkPassword);
+passwordCancel.addEventListener('click', closePasswordModal);
+passwordModalBg.addEventListener('click', (e)=>{ if(e.target===passwordModalBg) closePasswordModal(); });
+passwordInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPassword(); });
+
+document.getElementById('offBtn').addEventListener('click', openPasswordModal);
+
+/* ---------------- Resume modal (time + band) ---------------- */
+const resumeModalBg = document.getElementById('resumeModalBg');
+const resumeHour = document.getElementById('resumeHour');
+const resumeMinute = document.getElementById('resumeMinute');
+const presetNoon = document.getElementById('presetNoon');
+const presetNight = document.getElementById('presetNight');
+const resumeModalConfirm = document.getElementById('resumeModalConfirm');
+const resumeModalCancel = document.getElementById('resumeModalCancel');
+
+for(let h=0; h<24; h++){
+  const opt = document.createElement('option');
+  opt.value = String(h);
+  opt.textContent = pad2(h);
+  resumeHour.appendChild(opt);
+}
+for(let m=0; m<60; m++){
+  const opt = document.createElement('option');
+  opt.value = String(m);
+  opt.textContent = pad2(m);
+  resumeMinute.appendChild(opt);
+}
+
+function closeResumeModal(){ resumeModalBg.classList.remove('show'); }
+resumeModalCancel.addEventListener('click', closeResumeModal);
+resumeModalBg.addEventListener('click', (e)=>{ if(e.target===resumeModalBg) closeResumeModal(); });
+
+function setPresetActive(which){
+  presetNoon.classList.toggle('is-active', which==='noon');
+  presetNight.classList.toggle('is-active', which==='night');
+}
+presetNoon.addEventListener('click', ()=>{ resumeHour.value='12'; resumeMinute.value='0'; setPresetActive('noon'); });
+presetNight.addEventListener('click', ()=>{ resumeHour.value='20'; resumeMinute.value='0'; setPresetActive('night'); });
+resumeHour.addEventListener('change', ()=> setPresetActive(null));
+resumeMinute.addEventListener('change', ()=> setPresetActive(null));
+
+document.getElementById('resumeBtn').addEventListener('click', ()=>{
+  const now = new Date();
+  resumeHour.value = String(now.getHours());
+  resumeMinute.value = String(now.getMinutes());
+  setPresetActive(null);
+  const pausedBand = bandIndexForMs(effectiveTodayMs());
+  resumeBandSelect.value = String(pausedBand);
+  resumeModalBg.classList.add('show');
+});
+
+resumeModalConfirm.addEventListener('click', async ()=>{
+  const now = new Date();
+  const realToday = activeBandUtcMidnightFor(now); // uses the dayStart that was in effect during the outage
+  const daysOff = Math.max(0, Math.round((realToday - status.offSinceMs) / MS_DAY));
+  let newOffsetDays = status.offsetDays + daysOff;
+
+  const selectedBand = parseInt(resumeBandSelect.value, 10);
+  let extra = 0;
+  for (let k=0; k<10; k++){
+    if (bandIndexForMs(realToday - (newOffsetDays+k)*MS_DAY) === selectedBand){ extra = k; break; }
+  }
+  newOffsetDays += extra;
+
+  const hh = parseInt(resumeHour.value, 10) || 0;
+  const mm = parseInt(resumeMinute.value, 10) || 0;
+
+  status.offsetDays = newOffsetDays;
+  status.state = 'on';
+  status.offSinceMs = null;
+  status.dayStart = { hour: hh, minute: mm }; // this becomes the daily band-switch time going forward
+  status.lastOn = { ms: realToday, hour: hh, minute: mm, band: selectedBand };
+  await saveStatus();
+  selectedIndex = null;
+  closeResumeModal();
+  render();
+});
+
+/* ---------------- Countdown to next band ---------------- */
+const countdownEl = document.getElementById('countdown');
+const countdownLabel = document.getElementById('countdownLabel');
+const countdownTime = document.getElementById('countdownTime');
+
+function updateCountdown(){
+  if (status.state === 'off'){
+    countdownEl.classList.add('off');
+    countdownLabel.textContent = 'نوبت‌بندی متوقف است';
+    countdownTime.textContent = 'تا روشن شدن دوباره';
+    return;
+  }
+  countdownEl.classList.remove('off');
+  countdownLabel.textContent = 'تا شروع بند بعدی';
+  const now = new Date();
+  const curBoundary = activeBandDate(now);
+  const nextBoundaryMs = curBoundary.getTime() + MS_DAY;
+  const remain = Math.max(0, nextBoundaryMs - now.getTime());
+  const h = Math.floor(remain / 3600000);
+  const m = Math.floor((remain % 3600000) / 60000);
+  const s = Math.floor((remain % 60000) / 1000);
+  countdownTime.textContent = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+}
+setInterval(updateCountdown, 1000);
+
+/* ---------------- Tabs ---------------- */
+const tabBtnSchedule = document.getElementById('tabBtnSchedule');
+const tabBtnPartners = document.getElementById('tabBtnPartners');
+const tabSchedule = document.getElementById('tabSchedule');
+const tabPartners = document.getElementById('tabPartners');
+function showTab(which){
+  const onSchedule = which === 'schedule';
+  tabBtnSchedule.classList.toggle('is-active', onSchedule);
+  tabBtnPartners.classList.toggle('is-active', !onSchedule);
+  tabSchedule.classList.toggle('is-active', onSchedule);
+  tabPartners.classList.toggle('is-active', !onSchedule);
+}
+tabBtnSchedule.addEventListener('click', ()=> showTab('schedule'));
+tabBtnPartners.addEventListener('click', ()=> showTab('partners'));
+
+/* ---------------- Partners grid ---------------- */
+function buildPartnersGrid(){
+  const grid = document.getElementById('partnersGrid');
+  const todayEffMs = effectiveTodayMs();
+  const todayBandIndex = bandIndexForMs(todayEffMs);
+  grid.innerHTML = BANDS.map((names, i) => `
+    <div class="partner-card ${i===todayBandIndex ? 'is-today' : ''}">
+      <div class="pc-head">
+        <span class="pc-badge">بند ${ORDINAL[i]}</span>
+        ${i===todayBandIndex ? '<span class="pc-today-flag">نوبت امروز</span>' : ''}
+      </div>
+      <div class="pc-names">${names}</div>
+    </div>
+  `).join('');
+}
+
+/* ---------------- Init ---------------- */
+(async ()=>{
+  await loadStatus();
+  render();
+  initLookup();
+  updateCountdown();
+  buildPartnersGrid();
+  const SITE_UPDATE_DATE = Date.UTC(2026, 7, 4); // تاریخ آخرین به‌روزرسانی سایت
+  document.getElementById('updateDate').textContent = formatJalali(SITE_UPDATE_DATE);
+})();
+</script>
+</body>
+</html>
